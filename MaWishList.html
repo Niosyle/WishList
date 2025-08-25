@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wish Liste</title>
+  <style>
+    :root{
+      --bg:#0d0d12;
+      --panel:#110f16;
+      --soft:#3e344e;
+      --text:#ece7ff;
+      --muted:#a39bc4;
+      --brand:#8a4bff;   /* violet principal */
+      --accent:#cc5ffe;  /* violet clair */
+      --warn:#d4a373;
+      --radius:16px;
+      --shadow:0 10px 30px rgba(0,0,0,.28);
+    }
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg:#f6f3ff; --panel:#ffffff; --soft:#efe9ff; --text:#120f1a; --muted:#5b5471; --brand:#7c3aed; --accent:#a78bfa; --warn:#a56a2b;
+      }
+    }
+    *{box-sizing:border-box}
+    html, body {
+      height: 100%;
+      margin: 0;
+      color: var(--text);
+      font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, sans-serif;
+      background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(139,92,246,.20), transparent 60%) no-repeat,
+      radial-gradient(900px 500px at 120% 10%, rgba(167,139,250,.18), transparent 55%) no-repeat,
+      linear-gradient(180deg, #0e0c13 0%, #100c18 35%, #0f0c16 100%);
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+
+    .app{display:grid;grid-template-columns:1fr;min-height:100dvh}
+
+    header.toolbar{
+      position:sticky;top:0;z-index:5;padding:14px 14px 8px;
+      background:
+        linear-gradient(180deg, rgba(139,92,246,.12), transparent 70%),
+        linear-gradient(180deg,var(--bg),transparent);
+      backdrop-filter: blur(6px);
+    }
+    
+    /* masque la puce "Catégorie" (le select moche) */
+    header.toolbar .chip:has(#filterCategory){ display:none; }     /* navigateurs modernes */
+    header.toolbar [for="filterCategory"],
+    header.toolbar #filterCategory { display:none; }   
+
+
+
+    .bar{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .bar .chip{background:var(--panel);border:1px solid var(--soft);padding:10px 12px;border-radius:999px;display:flex;gap:8px;align-items:center}
+    .bar input[type="search"], .bar select{border:none;background:transparent;color:var(--text);outline:none}
+    .brand{font-weight:800;font-size:18px;letter-spacing:.2px}
+
+    .layout{display:grid;grid-template-columns:1fr;gap:14px;padding:12px}
+
+    details.sidebar{background:var(--panel);border:1px solid var(--soft);border-radius:var(--radius);box-shadow:var(--shadow)}
+    details.sidebar > summary{padding:14px 16px;cursor:pointer;list-style:none}
+    details.sidebar[open] > summary{border-bottom:1px solid var(--soft)}
+    .cats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:12px}
+    .cat{padding:10px 12px;border:1px solid var(--soft);border-radius:12px;background:transparent;color:var(--text);cursor:pointer}
+    .cat.active{background:linear-gradient(135deg, var(--brand), var(--accent));border-color:transparent;color:white}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+
+    /* Cartes */
+    .card{
+      display:flex; flex-direction:column; gap:10px;
+      background:var(--panel); border:1px solid var(--soft); border-radius:var(--radius); box-shadow:var(--shadow); padding:12px;
+    }
+
+    /* Image harmonisée (contain) */
+    .img{
+      position:relative; width:100%; aspect-ratio:16/9;
+      border-radius:12px; overflow:hidden;
+      background:
+        radial-gradient(200% 120% at 20% -20%, rgba(138,75,255,.18), transparent 60%),
+        radial-gradient(170% 100% at 120% 0%, rgba(204,95,254,.12), transparent 55%),
+        linear-gradient(135deg,#1b1526,#0f0c16);
+      display:flex; align-items:center; justify-content:center;
+    }
+    .img img{
+      max-width:100%; max-height:100%;
+      object-fit:contain; display:block;
+      filter: drop-shadow(0 6px 12px rgba(0,0,0,.35));
+    }
+
+    .meta{display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .meta .badge{font-size:12px;color:var(--muted)}
+
+    .price{
+      font-size:1.1em; font-weight:800;
+      background:linear-gradient(135deg, var(--brand), var(--accent));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+
+    .title{
+      margin:6px 0 0; font-size:16px;
+      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+      display: box; box-orient: vertical; line-clamp: 2;
+    }
+    .notes{
+      margin:6px 0; color:var(--muted);
+      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+      display: box; box-orient: vertical; line-clamp: 2;
+    }
+
+    .ratings{display:grid;gap:6px;border-top:1px dashed var(--soft);padding-top:8px; margin-top:auto;}
+    .ratings.readonly input[type="range"]{pointer-events:none;opacity:.6}
+    .row{display:grid;grid-template-columns:100px 1fr 36px;align-items:center;gap:8px}
+    input[type="range"]{width:100%;appearance:none;background:transparent}
+    input[type="range"]::-webkit-slider-runnable-track{height:6px;background:var(--soft);border-radius:6px}
+    input[type="range"]::-webkit-slider-thumb{appearance:none;margin-top:-6px;width:18px;height:18px;border-radius:50%;background:var(--brand);border:2px solid #fff}
+    input[type="range"]::-moz-range-track{height:6px;background:var(--soft);border:none;border-radius:6px}
+    input[type="range"]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--brand);border:2px solid #fff}
+
+    .scoreLine{display:flex;justify-content:space-between;align-items:center;margin-top:6px;padding-top:6px;border-top:1px dashed var(--soft)}
+    .score{font-weight:700}
+    .actions{display:flex;gap:8px}
+    .btn{padding:8px 10px;border-radius:10px;border:1px solid var(--soft);background:transparent;color:var(--text);cursor:pointer}
+    .btn.primary{
+      background:linear-gradient(135deg, var(--brand), var(--accent));
+      border-color:transparent;
+      color:#0b0814;
+      font-weight:800;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .btn.primary:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 16px rgba(138,75,255,0.4);
+    }
+
+    .archived{opacity:.55;filter:saturate(.2)}
+
+    @media (min-width: 960px){
+      .layout{grid-template-columns:280px 1fr}
+      details.sidebar{position:sticky;top:12px;height:fit-content}
+      details.sidebar[open] > summary{display:none}
+      details.sidebar[open]{padding-top:8px}
+      .cats{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="toolbar">
+      <div class="bar">
+        <div class="brand">Ma liste</div>
+        <div class="chip">
+          <label for="filterCategory">Catégorie</label>
+          <select id="filterCategory">
+            <option value="all">Toutes</option>
+            <option>Musique & MAO</option>
+            <option>Informatique & Matériel</option>
+            <option>Loisirs & Jeux</option>
+            <option>Quotidien & Maison</option>
+          </select>
+        </div>
+        <div class="chip">
+          <label for="filterScore">Score min</label>
+          <input id="filterScore" type="range" min="0" max="5" step="1" value="0"/>
+          <span id="filterScoreValue">0</span>
+        </div>
+        <div class="chip" style="flex:1 1 220px">
+          <input type="search" id="search" placeholder="Rechercher (titre, notes)…" />
+        </div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <details class="sidebar" open>
+        <summary>Catégories</summary>
+        <div class="cats" id="cats">
+          <button class="cat active" data-cat="all">Toutes</button>
+          <button class="cat" data-cat="Musique & MAO">Musique & MAO</button>
+          <button class="cat" data-cat="Informatique & Matériel">Informatique & Matériel</button>
+          <button class="cat" data-cat="Loisirs & Jeux">Loisirs & Jeux</button>
+          <button class="cat" data-cat="Quotidien & Maison">Quotidien & Maison</button>
+        </div>
+      </details>
+
+      <main>
+        <section class="grid" id="grid">
+
+          <!-- MUSIQUE & MAO -->
+          <article class="card" data-category="Musique & MAO">
+            <div class="img">
+              <!-- place ton fichier : images/audio_technica_at2020usb_x.jpg -->
+              <img src="Audio-Technica AT2020USB-X.jpg" alt="Micro USB">
+            </div>
+            <div class="meta">
+              <span class="badge">Musique & MAO</span>
+              <span class="price">128€</span>
+            </div>
+            <h3 class="title">Micro Audio-Technica AT2020USB-X</h3>
+            <p class="notes">Usage voix + prise de son</p>
+            <div class="ratings readonly">
+              <div class="row"><label>Utilité</label><input type="range" min="0" max="5" step="1" value="3"/><span class="val">3</span></div>
+              <div class="row"><label>Plaisir</label><input type="range" min="0" max="5" step="1" value="3"/><span class="val">3</span></div>
+              <div class="scoreLine">
+                <span class="score">Score : <b class="scoreVal">0.0</b> / 5</span>
+                <div class="actions">
+                  
+                  <a class="btn primary" href="https://www.thomann.fr/audio_technica_at2020usb_x.htm?gad_source=1&gad_campaignid=1544038016&gbraid=0AAAAADuDMCVX8OncMj8Mv5veFVO6TFMnR&gclid=Cj0KCQjwh5vFBhCyARIsAHBx2wz7MJkycmOcRjGwfBYluQASAji83WZnjoREE0lfJqEQu98wct8KvaIaAii0EALw_wcB" target="_blank" rel="noopener noreferrer">Voir</a>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="card" data-category="Musique & MAO">
+            <div class="img">
+              <!-- images/prs_se_custom_24_tu.jpg -->
+              <img src="PRS ce custom 24.jpg" alt="PRS CE Custom 24">
+            </div>
+            <div class="meta"><span class="badge">Musique & MAO</span><span class="price">2 869€</span></div>
+            <h3 class="title">PRS CE Custom 24 Fire Red Burst</h3>
+            <p class="notes">Guitare de mes réve long terme</p>
+            <div class="ratings readonly">
+              <div class="row"><label>Utilité</label><input type="range" min="0" max="5" step="1" value="3"/><span class="val">3</span></div>
+              <div class="row"><label>Plaisir</label><input type="range" min="0" max="5" step="1" value="5"/><span class="val">5</span></div>
+              <div class="scoreLine">
+                <span class="score">Score : <b class="scoreVal">0.0</b> / 5</span>
+                <div class="actions">
+                  
+                  <a class="btn primary" href="https://www.thomann.fr/prs_ce_24_fire_red_burst_601862.htm?gad_source=1&gad_campaignid=1544038007&gbraid=0AAAAADuDMCWccLFOYpYxXEJ25mLNsscbW&gclid=CjwKCAjwk7DFBhBAEiwAeYbJsQkoAnoul0coTnnm2RcrhfexyxwByljsoO5ohU_hho1ekWf6JfD-uBoCQL8QAvD_BwE" target="_blank" rel="noopener noreferrer">Voir</a>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="card" data-category="Musique & MAO">
+            <div class="img">
+              <!-- images/prs_se_custom_24_tu.jpg -->
+              <img src="Focusrite Scarlett 2i2 3rd Gen.jpg" alt="Focusrite Scarlett 2i2 3rd Gen">
+            </div>
+            <div class="meta"><span class="badge">Musique & MAO</span><span class="price">119€</span></div>
+            <h3 class="title">Focusrite Scarlett 2i2 3rd Gen</h3>
+            <p class="notes">Interface audio USB stéréo guitare/voix</p>
+            <div class="ratings readonly">
+              <div class="row"><label>Utilité</label><input type="range" min="0" max="5" step="1" value="3"/><span class="val">3</span></div>
+              <div class="row"><label>Plaisir</label><input type="range" min="0" max="5" step="1" value="3"/><span class="val">3</span></div>
+              <div class="scoreLine">
+                <span class="score">Score : <b class="scoreVal">0.0</b> / 5</span>
+                <div class="actions">
+                  <a class="btn primary" href="https://www.thomann.fr/focusrite_scarlett_2i2_3rd_gen.htm" target="_blank" rel="noopener noreferrer">Voir</a>
+                </div>
+              </div>
+            </div>
+          </article>
+
+
+          <article class="card" data-category="Musique & MAO">
+            <div class="img">
+              <!-- images/prs_se_custom_24_tu.jpg -->
+              <img src="Truetone 1 Spot Pro CS6.jpg" alt="Truetone 1 Spot Pro CS6">
+            </div>
+            <div class="meta"><span class="badge">Musique & MAO</span><span class="price">155€</span></div>
+            <h3 class="title">Truetone 1 Spot Pro CS6</h3>
+            <p class="notes">Alimentation électrique compacte et isolée</p>
+            <div class="ratings readonly">
+              <div class="row"><label>Utilité</label><input type="range" min="0" max="5" step="1" value="5"/><span class="val">5</span></div>
+              <div class="row"><label>Plaisir</label><input type="range" min="0" max="5" step="1" value="3"/><span class="val">3</span></div>
+              <div class="scoreLine">
+                <span class="score">Score : <b class="scoreVal">0.0</b> / 5</span>
+                <div class="actions">
+                  
+                  <a class="btn primary" href="https://www.thomann.fr/truetone_1_spot_pro_cs6.htm?gad_source=1&gad_campaignid=1544038007&gbraid=0AAAAADuDMCUKdpTVLQxADobttP5pZc6CL&gclid=Cj0KCQjwh5vFBhCyARIsAHBx2wxXlWA8LHY8obpy26tgx26BjSYcJhlVhaC_6fCS9daW5Hwnu9Z94KsaArHcEALw_wcB" target="_blank" rel="noopener noreferrer">Voir</a>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="card" data-category="Musique & MAO">
+            <div class="img"><img src="Keeley Compressor Plus.jpg" alt="Keeley Compressor Plus" /></div>
+            <div class="meta"><span class="badge">Musique & MAO</span><span class="price">175€</span></div>
+            <h3 class="title">TKeeley Compressor Plus</h3>
+            <p class="notes">Pédale de compression analogique évoluée</p>
+            <div class="ratings readonly">
+              <div class="row"><label>Utilité</label><input type="range" min="0" max="5" step="1" value="2"/><span class="val">2</span></div>
+              <div class="row"><label>Plaisir</label><input type="range" min="0" max="5" step="1" value="4"/><span class="val">4</span></div>
+              <div class="scoreLine"><span class="score">Score : <b class="scoreVal">0.0</b> / 5</span><div class="actions"><a class="btn primary" href="https://www.thomann.fr/keeley_compressor_plus.htm?gad_source=1&gad_campaignid=1544038007&gbraid=0AAAAADuDMCUKdpTVLQxADobttP5pZc6CL&gclid=Cj0KCQjwh5vFBhCyARIsAHBx2wyjN4M7eKTqcSNoF-WfaWhEZLwAByqaRq5I1FBZ14s1X-GZgogx7ywaAkL2EALw_wcB" target="_blank" rel="noopener noreferrer">Voir</a></div></div>
+            </div>
+          </article>
+
+          <article class="card" data-category="Musique & MAO">
+            <div class="img"><img src="corde.jpg" alt="Pédale guitare" /></div>
+            <div class="meta"><span class="badge">Musique & MAO</span><span class="price">15.50€</span></div>
+            <h3 class="title">Corde guitare éléctrique</h3>
+            <p class="notes">XS 9</p>
+            <div class="ratings readonly">
+              <div class="row"><label>Utilité</label><input type="range" min="0" max="5" step="1" value="3"/><span class="val">3</span></div>
+              <div class="row"><label>Plaisir</label><input type="range" min="0" max="5" step="1" value="4"/><span class="val">4</span></div>
+              <div class="scoreLine"><span class="score">Score : <b class="scoreVal">0.0</b> / 5</span><div class="actions"><a class="btn primary" href="https://www.thomann.fr/daddario_xse0942.htm" target="_blank" rel="noopener noreferrer">Voir</a></div></div>
+            </div>
+          </article>
+
+          <article class="card" data-category="Musique & MAO">
+            <div class="img"><img src="support.jpg" alt="Suport Guitare" /></div>
+            <div class="meta"><span class="badge">Musique & MAO</span><span class="price">39€</span></div>
+            <h3 class="title">Support guitare</h3>
+            <p class="notes">Hercules GS405B</p>
+            <div class="ratings readonly">
+              <div class="row"><label>Utilité</label><input type="range" min="0" max="5" step="1" value="5"/><span class="val">5</span></div>
+              <div class="row"><label>Plaisir</label><input type="range" min="0" max="5" step="1" value="2"/><span class="val">2</span></div>
+              <div class="scoreLine"><span class="score">Score : <b class="scoreVal">0.0</b> / 5</span><div class="actions"><a class="btn primary" href="https://www.amazon.fr/Hercules-Stands-GS405B-Support-Guitare/dp/B000ARO4P0/ref=sr_1_1?__mk_fr_FR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=2ZB9CLDU3C26L&dib=eyJ2IjoiMSJ9.JNpNeqMwd3Z53xDfYtM1vzefzdgKjGZqviZQf44R8I6z8TvYqQEUOIr4WVm478L2ulLUydoSK628Mn1VHHWgRQ9fNVB9cDzX6RExAUJK44BwQnjB3ryypQKGUVeqH--WFYtnYs5Krpf7aeQX208dtFB9cVM4tn5071J4_OE-LNppnsCPEYJpenPBseynsSsccQ3uU5HQgBNVLTugMQPBJLDEkunZaFfAFHkX2KYEyl4z8K77BQivIYnP_OXJdpqkR1Ubl68we8qFiYhpO_Q13N9NgYvgolnimyuXgjCbrrc.z-iftJOssSgo1euhzNqdPWSvnmOAn-_v0aSCsk7cRVI&dib_tag=se&keywords=Hercules+GS405B&qid=1755982003&sprefix=hercules+gs405b%2Caps%2C125&sr=8-1" target="_blank" rel="noopener noreferrer">Voir</a></div></div>
+            </div>
+          </article>
+
+          <article class="card" data-category="Musique & MAO">
+            <div class="img"><img src="Cours de guitare.jpg" alt="Cours de guitare" /></div>
+            <div class="meta"><span class="badge">Musique & MAO</span><span class="price">20€/h</span></div>
+            <h3 class="title">Cours de guitare</h3>
+            <p class="notes">1h de cours de guitare</p>
+            <div class="ratings readonly">
+              <div class="row"><label>Utilité</label><input type="range" min="0" max="5" step="1" value="5"/><span class="val">5</span></div>
+              <div class="row"><label>Plaisir</label><input type="range" min="0" max="5" step="1" value="4"/><span class="val">4</span></div>
+              <div class="scoreLine"><span class="score">Score : <b class="scoreVal">0.0</b> / 5</span><div class="actions"><a class="btn primary" href=""  rel="noopener noreferrer">Voir</a></div></div>
+            </div>
+          </article>
+
+          <!-- LOISIRS & JEUX -->
+          <article class="card" data-category="Loisirs & Jeux">
+            <div class="img"><img src="manette.jpg" alt="Manette PC" /></div>
+            <div class="meta"><span class="badge">Loisirs & Jeux</span><span class="price">47.99€</span></div>
+            <h3 class="title">Manette pour PC</h3>
+            <p class="notes">Manette de jeu Gaming pour PC</p>
+            <div class="ratings readonly">
+              <div class="row"><label>Utilité</label><input type="range" min="0" max="5" step="1" value="3"/><span class="val">3</span></div>
+              <div class="row"><label>Plaisir</label><input type="range" min="0" max="5" step="1" value="4"/><span class="val">4</span></div>
+              <div class="scoreLine"><span class="score">Score : <b class="scoreVal">0.0</b> / 5</span><div class="actions"><a class="btn primary" href="https://www.amazon.fr/GameSir-G7-SE-Manette-Joysticks/dp/B0C7GW9F88/ref=sr_1_2_sspa?__mk_fr_FR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=2CRXE8LLHWZG5&dib=eyJ2IjoiMSJ9.xuwhtN8tWgaSu9w5v9F9gkjUI23xtt0ftP4m0sMQSYGkfB5G872qS643naYnfmSUS3cRNpmRn7BNVG698ELThUJ_jgnDQhlRuNIWZeLSnYG4Y7nSWks8dWl6Ge3JJG91PuHSVe49vsy2uX9z-ssM5fR65DfZN1CjYcnk-XeYpB1kyuQIH3R_90Gasx-gUv1l10n5OxJ1sFghs5tEEKAfvqkIwtnAvit52I4OKo0RsBWVt_PLBOwNvVSM1upvOGQ0m6VP7FWQbRGM0Np-Gc_2pFP4Xmn3izUtpYOxFa3z9tQ.wWH2MTnx1X9U4wNms3mj8Gy2p1APXAgzSn4ry7RoVIU&dib_tag=se&keywords=Manette+Xbox+%28USB-C%29&qid=1755979467&sprefix=manette+xbox+usb-c+%2Caps%2C115&sr=8-2-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&psc=1" target="_blank" rel="noopener noreferrer">Voir</a></div></div>
+            </div>
+          </article>
+
+          <!-- INFORMATIQUE & MATÉRIEL -->
+          <article class="card" data-category="Informatique & Matériel">
+            <div class="img"><img src="nvme.jpg" alt="NVMe" /></div>
+            <div class="meta"><span class="badge">Informatique & Matériel</span><span class="price">179.95€</span></div>
+            <h3 class="title">Crucial T500 - 2 To (PC études)</h3>
+            <p class="notes">Vitesse en lecture 7300 Mo/s</p>
+            <div class="ratings readonly">
+              <div class="row"><label>Utilité</label><input type="range" min="0" max="5" step="1" value="5"/><span class="val">5</span></div>
+              <div class="row"><label>Plaisir</label><input type="range" min="0" max="5" step="1" value="2"/><span class="val">2</span></div>
+              <div class="scoreLine"><span class="score">Score : <b class="scoreVal">0.0</b> / 5</span><div class="actions"><a class="btn primary" href="https://www.materiel.net/produit/202310090022.html" target="_blank" rel="noopener noreferrer">Voir</a></div></div>
+            </div>
+          </article>
+
+          <article class="card" data-category="Informatique & Matériel">
+            <div class="img"><img src="boitier.jpg" alt="Boîtier tour gaming" /></div>
+            <div class="meta"><span class="badge">Informatique & Matériel</span><span class="price">125.57€</span></div>
+            <h3 class="title">Fractal Design North</h3>
+            <p class="notes"> Changement boitier personnel</p>
+            <div class="ratings readonly">
+              <div class="row"><label>Utilité</label><input type="range" min="0" max="5" step="1" value="5"/><span class="val">5</span></div>
+              <div class="row"><label>Plaisir</label><input type="range" min="0" max="5" step="1" value="4"/><span class="val">4</span></div>
+              <div class="scoreLine"><span class="score">Score : <b class="scoreVal">0.0</b> / 5</span><div class="actions"><a class="btn primary" href="https://www.amazon.fr/Fractal-Design-FD-C-NOR1C-02/dp/B09V8HNWW9/ref=sr_1_1_sspa?__mk_fr_FR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=2O1AHJFXOLQZ8&dib=eyJ2IjoiMSJ9.yiMgVh6exKgBD8nOUQ4q9KiHNE7NfFm8z9gYikf5I8mITqfuCNDwydDUPBm4yXvvQ1mnpLOLUbq1xLbdg6osMXtwy9PHsojpQALNEGgRUfJaX_odWtz938OmVY4a9cCdzBQoKZhVVH8kLiSLo-2BmAs0EQyir4aD4WQXrBHxgnx9NlxcZ7p4FXdXlZLz4hUqXJmlA0O9PQSzQsU7EkQUlklbntKMSLL3G10VEgXKQ-HaqedxrvTxIidcCK7UGpAuKbXgHHMFqjGvjYeoWc8Ifx9-UuBpO1irEhypqjbrkDE.tS85Anw-urrjl2Tb7F4baZ2o287DApzfKN27677jxdE&dib_tag=se&keywords=Fractal%2BNorth&qid=1755981196&sprefix=fractal%2Bnorth%2Caps%2C72&sr=8-1-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&th=1" target="_blank" rel="noopener noreferrer">Voir</a></div></div>
+            </div>
+          </article>
+
+          <article class="card" data-category="Informatique & Matériel">
+            <div class="img"><img src="hackthebox.avif" alt="HacktheBox" /></div>
+            <div class="meta"><span class="badge">Informatique & Matériel</span><span class="price">10€</span></div>
+            <h3 class="title">Cours en ligne informatique</h3>
+            <p class="notes">Abonnement a une plateforme formatrice en cybersecurité</p>
+            <div class="ratings readonly">
+              <div class="row"><label>Utilité</label><input type="range" min="0" max="5" step="1" value="5"/><span class="val">5</span></div>
+              <div class="row"><label>Plaisir</label><input type="range" min="0" max="5" step="1" value="3"/><span class="val">3</span></div>
+              <div class="scoreLine"><span class="score">Score : <b class="scoreVal">0.0</b> / 5</span><div class="actions"><a class="btn primary" href=""  rel="noopener noreferrer">Voir</a></div></div>
+            </div>
+          </article>
+
+          <article class="card" data-category="Informatique & Matériel">
+            <div class="img"><img src="WAVLIN Station de travail.jpg" alt="Station de Travail" /></div>
+            <div class="meta"><span class="badge">Informatique & Matériel</span><span class="price">199€</span></div>
+            <h3 class="title">Station de travail</h3>
+            <p class="notes">Pour Ordinateur</p>
+            <div class="ratings readonly">
+              <div class="row"><label>Utilité</label><input type="range" min="0" max="5" step="1" value="4"/><span class="val">4</span></div>
+              <div class="row"><label>Plaisir</label><input type="range" min="0" max="5" step="1" value="2"/><span class="val">2</span></div>
+              <div class="scoreLine"><span class="score">Score : <b class="scoreVal">0.0</b> / 5</span><div class="actions"><a class="btn primary" href="https://www.amazon.fr/WAVLINK-Universal-Station-daccueil-UG69PD2/dp/B07J9VWQPY?th=1" target="_blank" rel="noopener noreferrer">Voir</a></div></div>
+            </div>
+          </article>
+
+          <!-- QUOTIDIEN & MAISON -->
+          <article class="card" data-category="Quotidien & Maison">
+            <div class="img"><img src="chaise.jpg" alt="CAHAYA Banc de Piano réglable" /></div>
+            <div class="meta"><span class="badge">Quotidien & Maison</span><span class="price">29.99€</span></div>
+            <h3 class="title">CAHAYA Banc de Piano réglable</h3>
+            <p class="notes">Assise stable, sans accoudoirs</p>
+            <div class="ratings readonly">
+              <div class="row"><label>Utilité</label><input type="range" min="0" max="5" step="1" value="4"/><span class="val">4</span></div>
+              <div class="row"><label>Plaisir</label><input type="range" min="0" max="5" step="1" value="3"/><span class="val">3</span></div>
+              <div class="scoreLine"><span class="score">Score : <b class="scoreVal">0.0</b> / 5</span><div class="actions"><a class="btn primary" href="https://www.amazon.fr/CAHAYA-r%C3%A9glable-rembourr%C3%A9-%C3%A9lectronique-num%C3%A9rique/dp/B0C9D1HC82/ref=sr_1_11?__mk_fr_FR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=2W7QUJ9EUQ4HA&dib=eyJ2IjoiMSJ9.wnEiMWDpKz4Bcbo_C0YmLSNUXbMFmLJeRUdwuqC67PJAMrtqpTe9tAW7WjUKC2s-J7q4CL4crWC0JotorJnFakVFsXQc1BaKFHwqS9KhyVCGbaPHIPLbZNX3drdYICECkjdCpRxM4OaK7sKBLonM9MAVItRCO-qo8HLZzvN6bh3QDP1Wm_s4b7m97WQrPSQpyeo8CKrv02FUeJ6fnn8eO0aSsNYYe1DIqlErdPb2lFIoBGr0mcmNzP-CxZu_8g_cVSbKQ0QuRmHTKRcVr9e9vRghyFloPw7nstNYG3nYGSE.nWv6iNWgY4D5CORADiwYj9g8wAe6dhgnPWNwOjMB2go&dib_tag=se&keywords=chaise+guitare&qid=1755981509&sprefix=chaise+guitare%2Caps%2C72&sr=8-11" target="_blank" rel="noopener noreferrer">Voir</a></div></div>
+            </div>
+          </article>
+
+          <article class="card" data-category="Quotidien & Maison">
+            <div class="img"><img src="cadeaux.jpg" alt="Suprise" /></div>
+            <div class="meta"><span class="badge">Quotidien & Maison</span><span class="price">?€</span></div>
+            <h3 class="title">Surprise</h3>
+            <p class="notes">Ce qui te fait plaisir</p>
+            <div class="ratings readonly">
+              <div class="row"><label>Utilité</label><input type="range" min="0" max="5" step="1" value="5"/><span class="val">5</span></div>
+              <div class="row"><label>Plaisir</label><input type="range" min="0" max="5" step="1" value="5"/><span class="val">5</span></div>
+              <div class="scoreLine"><span class="score">Score : <b class="scoreVal">0.0</b> / 5</span><div class="actions"><a class="btn primary" href=""  rel="noopener noreferrer">Voir</a></div></div>
+            </div>
+          </article>
+
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // Score basé sur Utilité (60%) + Plaisir (40%)
+    function computeScore(u, p){
+      const score = 0.6*Number(u) + 0.4*Number(p);
+      return Math.round(score*10)/10;
+    }
+
+    function initCard(card){
+      const rows = card.querySelectorAll('.row');
+      const scoreEl = card.querySelector('.scoreVal');
+      const inputs = card.querySelectorAll('input[type="range"]');
+      const ratings = card.querySelector('.ratings');
+      const isReadonly = ratings.classList.contains('readonly');
+
+      function recalc(){
+        const vals = Array.from(inputs).map(i=> Number(i.value));
+        rows.forEach((row, idx)=> row.querySelector('.val').textContent = vals[idx]);
+        const s = computeScore(vals[0], vals[1]);
+        scoreEl.textContent = s.toFixed(1);
+        card.dataset.score = String(s);
+        applyFilters();
+      }
+
+      if (isReadonly) {
+        inputs.forEach(i => i.disabled = true);
+      } else {
+        inputs.forEach(i => i.addEventListener('input', recalc));
+      }
+
+      const archiveBtn = card.querySelector('[data-action="archive"]');
+      if (archiveBtn) {
+        archiveBtn.addEventListener('click', ()=>{
+          card.classList.toggle('archived');
+          applyFilters();
+        });
+      }
+
+      recalc();
+    }
+
+    const filterCategory = document.getElementById('filterCategory');
+    const filterScore = document.getElementById('filterScore');
+    const filterScoreValue = document.getElementById('filterScoreValue');
+    const search = document.getElementById('search');
+    const grid = document.getElementById('grid');
+
+    function applyFilters(){
+      const cat = filterCategory.value;
+      const minScore = Number(filterScore.value || 0);
+      const q = (search.value || '').trim().toLowerCase();
+      const cards = grid.querySelectorAll('.card');
+      cards.forEach(card=>{
+        const isArchived = card.classList.contains('archived');
+        const score = Number(card.dataset.score || 0);
+        const cardCat = card.getAttribute('data-category');
+        const text = (card.textContent || '').toLowerCase();
+        let show = !isArchived && score >= minScore;
+        if(cat !== 'all') show = show && (cardCat === cat);
+        if(q) show = show && text.includes(q);
+        card.style.display = show ? '' : 'none';
+      });
+    }
+
+    document.getElementById('cats').addEventListener('click', (e)=>{
+      const btn = e.target.closest('.cat');
+      if(!btn) return;
+      const cat = btn.dataset.cat;
+      document.querySelectorAll('.cat').forEach(b=> b.classList.toggle('active', b===btn));
+      filterCategory.value = cat === 'all' ? 'all' : cat;
+      applyFilters();
+    });
+
+    filterCategory.addEventListener('change', ()=>{
+      const val = filterCategory.value;
+      document.querySelectorAll('.cat').forEach(b=> b.classList.toggle('active', b.dataset.cat === val));
+      if(val==='all'){
+        document.querySelectorAll('.cat').forEach(b=>{ if(b.dataset.cat==='all') b.classList.add('active'); });
+      }
+      applyFilters();
+    });
+
+    filterScore.addEventListener('input', ()=>{ filterScoreValue.textContent = filterScore.value; applyFilters(); });
+    search.addEventListener('input', applyFilters);
+
+    document.querySelectorAll('.card').forEach(initCard);
+    applyFilters();
+  </script>
+</body>
+</html>
