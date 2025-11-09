@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wish Liste</title>
+  <style>
+    :root{
+      --bg:#0d0d12;
+      --panel:#110f16;
+      --soft:#3e344e;
+      --text:#ece7ff;
+      --muted:#a39bc4;
+      --brand:#8a4bff;   /* violet principal */
+      --accent:#cc5ffe;  /* violet clair */
+      --warn:#d4a373;
+      --radius:16px;
+      --shadow:0 10px 30px rgba(0,0,0,.28);
+    }
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg:#f6f3ff; --panel:#ffffff; --soft:#efe9ff; --text:#120f1a; --muted:#5b5471; --brand:#7c3aed; --accent:#a78bfa; --warn:#a56a2b;
+      }
+    }
+    *{box-sizing:border-box}
+    html, body {
+      height: 100%;
+      margin: 0;
+      color: var(--text);
+      font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, sans-serif;
+      background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(139,92,246,.20), transparent 60%) no-repeat,
+      radial-gradient(900px 500px at 120% 10%, rgba(167,139,250,.18), transparent 55%) no-repeat,
+      linear-gradient(180deg, #0e0c13 0%, #100c18 35%, #0f0c16 100%);
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+
+    .app{display:grid;grid-template-columns:1fr;min-height:100dvh}
+
+    header.toolbar{
+      position:sticky;top:0;z-index:5;padding:14px 14px 8px;
+      background:
+        linear-gradient(180deg, rgba(139,92,246,.12), transparent 70%),
+        linear-gradient(180deg,var(--bg),transparent);
+      backdrop-filter: blur(6px);
+    }
+    
+    /* masque la puce "Catégorie" (le select moche) */
+    header.toolbar .chip:has(#filterCategory){ display:none; }     /* navigateurs modernes */
+    header.toolbar [for="filterCategory"],
+    header.toolbar #filterCategory { display:none; }   
+
+
+
+    .bar{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .bar .chip{background:var(--panel);border:1px solid var(--soft);padding:10px 12px;border-radius:999px;display:flex;gap:8px;align-items:center}
+    .bar input[type="search"], .bar select{border:none;background:transparent;color:var(--text);outline:none}
+    .brand{font-weight:800;font-size:18px;letter-spacing:.2px}
+
+    .layout{display:grid;grid-template-columns:1fr;gap:14px;padding:12px}
+
+    details.sidebar{background:var(--panel);border:1px solid var(--soft);border-radius:var(--radius);box-shadow:var(--shadow)}
+    details.sidebar > summary{padding:14px 16px;cursor:pointer;list-style:none}
+    details.sidebar[open] > summary{border-bottom:1px solid var(--soft)}
+    .cats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:12px}
+    .cat{padding:10px 12px;border:1px solid var(--soft);border-radius:12px;background:transparent;color:var(--text);cursor:pointer}
+    .cat.active{background:linear-gradient(135deg, var(--brand), var(--accent));border-color:transparent;color:white}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+
+    /* Cartes */
+    .card{
+      display:flex; flex-direction:column; gap:10px;
+      background:var(--panel); border:1px solid var(--soft); border-radius:var(--radius); box-shadow:var(--shadow); padding:12px;
+    }
+
+    /* Image harmonisée (contain) */
+    .img{
+      position:relative; width:100%; aspect-ratio:16/9;
+      border-radius:12px; overflow:hidden;
+      background:
+        radial-gradient(200% 120% at 20% -20%, rgba(138,75,255,.18), transparent 60%),
+        radial-gradient(170% 100% at 120% 0%, rgba(204,95,254,.12), transparent 55%),
+        linear-gradient(135deg,#1b1526,#0f0c16);
+      display:flex; align-items:center; justify-content:center;
+    }
+    .img img{
+      max-width:100%; max-height:100%;
+      object-fit:contain; display:block;
+      filter: drop-shadow(0 6px 12px rgba(0,0,0,.35));
+    }
+
+    .meta{display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .meta .badge{font-size:12px;color:var(--muted)}
+
+    .price{
+      font-size:1.1em; font-weight:800;
+      background:linear-gradient(135deg, var(--brand), var(--accent));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+
+    .title{
+      margin:6px 0 0; font-size:16px;
+      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+      display: box; box-orient: vertical; line-clamp: 2;
+    }
+    .notes{
+      margin:6px 0; color:var(--muted);
+      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+      display: box; box-orient: vertical; line-clamp: 2;
+    }
+
+    .ratings{display:grid;gap:6px;border-top:1px dashed var(--soft);padding-top:8px; margin-top:auto;}
+    .ratings.readonly input[type="range"]{pointer-events:none;opacity:.6}
+    .row{display:grid;grid-template-columns:100px 1fr 36px;align-items:center;gap:8px}
+    input[type="range"]{width:100%;appearance:none;background:transparent}
+    input[type="range"]::-webkit-slider-runnable-track{height:6px;background:var(--soft);border-radius:6px}
+    input[type="range"]::-webkit-slider-thumb{appearance:none;margin-top:-6px;width:18px;height:18px;border-radius:50%;background:var(--brand);border:2px solid #fff}
+    input[type="range"]::-moz-range-track{height:6px;background:var(--soft);border:none;border-radius:6px}
+    input[type="range"]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--brand);border:2px solid #fff}
+
+    .scoreLine{display:flex;justify-content:space-between;align-items:center;margin-top:6px;padding-top:6px;border-top:1px dashed var(--soft)}
+    .score{font-weight:700}
+    .actions{display:flex;gap:8px}
+    .btn{padding:8px 10px;border-radius:10px;border:1px solid var(--soft);background:transparent;color:var(--text);cursor:pointer}
+    .btn.primary{
+      background:linear-gradient(135deg, var(--brand), var(--accent));
+      border-color:transparent;
+      color:#0b0814;
+      font-weight:800;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .btn.primary:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 16px rgba(138,75,255,0.4);
+    }
+
+    .archived{opacity:.55;filter:saturate(.2)}
+
+    @media (min-width: 960px){
+      .layout{grid-template-columns:280px 1fr}
+      details.sidebar{position:sticky;top:12px;height:fit-content}
+      details.sidebar[open] > summary{display:none}
+      details.sidebar[open]{padding-top:8px}
+      .cats{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="toolbar">
+      <div class="bar">
+        <div class="brand">Envie</div>
+
+        <!-- Boutons de navigation -->
+        <div class="chip">
+          <button class="btn" onclick="window.location.href='index.html'">
+            Accueil
+          </button>
+        </div>
+
+        <div class="chip">
+          <button class="btn" onclick="window.location.href='materiel-deja-acquis.html'">
+            Matériel déjà acquis
+          </button>
+        </div>
+
+        <div class="chip">
+          <label for="filterCategory">Catégorie</label>
+          <select id="filterCategory">
+            <option value="all">Toutes</option>
+            <option>Musique & MAO</option>
+            <option>Informatique & Matériel</option>
+            <option>Loisirs & Jeux</option>
+            <option>Quotidien & Maison</option>
+          </select>
+        </div>
+
+        <div class="chip">
+          <label for="filterScore">Score min</label>
+          <input id="filterScore" type="range" min="0" max="5" step="1" value="0"/>
+          <span id="filterScoreValue">0</span>
+        </div>
+        <div class="chip" style="flex:1 1 220px">
+          <input type="search" id="search" placeholder="Rechercher (titre, notes)…" />
+        </div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <details class="sidebar" open>
+        <summary>Catégories</summary>
+        <div class="cats" id="cats">
+          <button class="cat active" data-cat="all">Toutes</button>
+          <button class="cat" data-cat="Musique & MAO">Musique</button>
+          <button class="cat" data-cat="Informatique & Matériel">Informatique & Matériel</button>
+          <button class="cat" data-cat="Loisirs & Jeux">Loisirs & Jeux</button>
+          <button class="cat" data-cat="Quotidien & Maison">Quotidien & Maison</button>
+        </div>
+      </details>
+
+      <main>
+        <section class="grid" id="grid">
+
+          
+
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // Score basé sur Utilité (60%) + Plaisir (40%)
+    function computeScore(u, p){
+      const score = 0.6*Number(u) + 0.4*Number(p);
+      return Math.round(score*10)/10;
+    }
+
+    function initCard(card){
+      const rows = card.querySelectorAll('.row');
+      const scoreEl = card.querySelector('.scoreVal');
+      const inputs = card.querySelectorAll('input[type="range"]');
+      const ratings = card.querySelector('.ratings');
+      const isReadonly = ratings.classList.contains('readonly');
+
+      function recalc(){
+        const vals = Array.from(inputs).map(i=> Number(i.value));
+        rows.forEach((row, idx)=> row.querySelector('.val').textContent = vals[idx]);
+        const s = computeScore(vals[0], vals[1]);
+        scoreEl.textContent = s.toFixed(1);
+        card.dataset.score = String(s);
+        applyFilters();
+      }
+
+      if (isReadonly) {
+        inputs.forEach(i => i.disabled = true);
+      } else {
+        inputs.forEach(i => i.addEventListener('input', recalc));
+      }
+
+      const archiveBtn = card.querySelector('[data-action="archive"]');
+      if (archiveBtn) {
+        archiveBtn.addEventListener('click', ()=>{
+          card.classList.toggle('archived');
+          applyFilters();
+        });
+      }
+
+      recalc();
+    }
+
+    const filterCategory = document.getElementById('filterCategory');
+    const filterScore = document.getElementById('filterScore');
+    const filterScoreValue = document.getElementById('filterScoreValue');
+    const search = document.getElementById('search');
+    const grid = document.getElementById('grid');
+
+    function applyFilters(){
+      const cat = filterCategory.value;
+      const minScore = Number(filterScore.value || 0);
+      const q = (search.value || '').trim().toLowerCase();
+      const cards = grid.querySelectorAll('.card');
+      cards.forEach(card=>{
+        const isArchived = card.classList.contains('archived');
+        const score = Number(card.dataset.score || 0);
+        const cardCat = card.getAttribute('data-category');
+        const text = (card.textContent || '').toLowerCase();
+        let show = !isArchived && score >= minScore;
+        if(cat !== 'all') show = show && (cardCat === cat);
+        if(q) show = show && text.includes(q);
+        card.style.display = show ? '' : 'none';
+      });
+    }
+
+    document.getElementById('cats').addEventListener('click', (e)=>{
+      const btn = e.target.closest('.cat');
+      if(!btn) return;
+      const cat = btn.dataset.cat;
+      document.querySelectorAll('.cat').forEach(b=> b.classList.toggle('active', b===btn));
+      filterCategory.value = cat === 'all' ? 'all' : cat;
+      applyFilters();
+    });
+
+    filterCategory.addEventListener('change', ()=>{
+      const val = filterCategory.value;
+      document.querySelectorAll('.cat').forEach(b=> b.classList.toggle('active', b.dataset.cat === val));
+      if(val==='all'){
+        document.querySelectorAll('.cat').forEach(b=>{ if(b.dataset.cat==='all') b.classList.add('active'); });
+      }
+      applyFilters();
+    });
+
+    filterScore.addEventListener('input', ()=>{ filterScoreValue.textContent = filterScore.value; applyFilters(); });
+    search.addEventListener('input', applyFilters);
+
+    document.querySelectorAll('.card').forEach(initCard);
+    applyFilters();
+  </script>
+</body>
+</html>
