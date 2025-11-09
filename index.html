@@ -152,7 +152,17 @@
   <div class="app">
     <header class="toolbar">
       <div class="bar">
-        <div class="brand">Ma liste</div>
+        <div class="brand">Envie</div>
+
+        <!-- Boutons de navigation -->
+        <div class="chip">
+          <button class="btn" onclick="window.location.href='index.html'">
+            Accueil
+          </button>
+        </div>
+
+
+
         <div class="chip">
           <label for="filterCategory">Catégorie</label>
           <select id="filterCategory">
@@ -163,6 +173,7 @@
             <option>Quotidien & Maison</option>
           </select>
         </div>
+
         <div class="chip">
           <label for="filterScore">Score min</label>
           <input id="filterScore" type="range" min="0" max="5" step="1" value="0"/>
@@ -179,7 +190,7 @@
         <summary>Catégories</summary>
         <div class="cats" id="cats">
           <button class="cat active" data-cat="all">Toutes</button>
-          <button class="cat" data-cat="Musique & MAO">Musique & MAO</button>
+          <button class="cat" data-cat="Musique & MAO">Musique</button>
           <button class="cat" data-cat="Informatique & Matériel">Informatique & Matériel</button>
           <button class="cat" data-cat="Loisirs & Jeux">Loisirs & Jeux</button>
           <button class="cat" data-cat="Quotidien & Maison">Quotidien & Maison</button>
@@ -338,6 +349,31 @@
             </div>
           </article>
 
+                    <!-- LOISIRS & JEUX -->
+          <article class="card" data-category="Loisirs & Jeux">
+            <div class="img"><img src="volant.jpg" alt="volant PC" /></div>
+            <div class="meta"><span class="badge">Loisirs & Jeux</span><span class="price">261.99€</span></div>
+            <h3 class="title">Thrustmaster T248 Volant de course à retour de force</h3>
+            <p class="notes">volant de jeu Gaming pour PC</p>
+            <div class="ratings readonly">
+              <div class="row"><label>Utilité</label><input type="range" min="0" max="5" step="1" value="3"/><span class="val">3</span></div>
+              <div class="row"><label>Plaisir</label><input type="range" min="0" max="5" step="1" value="5"/><span class="val">5</span></div>
+              <div class="scoreLine"><span class="score">Score : <b class="scoreVal">0.0</b> / 5</span><div class="actions"><a class="btn primary" href="https://www.amazon.fr/Thrustmaster-Magn%C3%A9tiques-Courroie-Palettes-Dynamique/dp/B09LMTBXGG/ref=asc_df_B09LMTBXGG?mcid=42f3029448933e7d8aa6efe1f7bd7be2&tag=googshopfr-21&linkCode=df0&hvadid=701439836584&hvpos=&hvnetw=g&hvrand=7469567976034543420&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9056449&hvtargid=pla-1762739256152&psc=1&hvocijid=7469567976034543420-B09LMTBXGG-&hvexpln=0" target="_blank" rel="noopener noreferrer">Voir</a></div></div>
+            </div>
+          </article>
+          
+          <article class="card" data-category="Loisirs & Jeux">
+            <div class="img"><img src="levier.jpg" alt="levier PC" /></div>
+            <div class="meta"><span class="badge">Loisirs & Jeux</span><span class="price">65.55€</span></div>
+            <h3 class="title">Thrustmaster TH8S Manette</h3>
+            <p class="notes">Manette de vitesse haute précision PC</p>
+            <div class="ratings readonly">
+              <div class="row"><label>Utilité</label><input type="range" min="0" max="5" step="1" value="3"/><span class="val">3</span></div>
+              <div class="row"><label>Plaisir</label><input type="range" min="0" max="5" step="1" value="5"/><span class="val">5</span></div>
+              <div class="scoreLine"><span class="score">Score : <b class="scoreVal">0.0</b> / 5</span><div class="actions"><a class="btn primary" href="https://www.amazon.fr/Thrustmaster-Shifter-rapports-compatible-PlayStation/dp/B0BRQFQVJX/ref=pd_bxgy_thbs_d_sccl_1/258-7728744-2039108?pd_rd_w=6bVoI&content-id=amzn1.sym.03bf4ac1-f977-462e-a49c-ecc82106eb90&pf_rd_p=03bf4ac1-f977-462e-a49c-ecc82106eb90&pf_rd_r=T4D7H5FM2MAXDCY2295Y&pd_rd_wg=2KSfe&pd_rd_r=70f4b8ef-310e-40fb-9856-77ef48f8913b&pd_rd_i=B0BRQFQVJX&th=1" target="_blank" rel="noopener noreferrer">Voir</a></div></div>
+            </div>
+          </article>
+
           <!-- INFORMATIQUE & MATÉRIEL -->
           <article class="card" data-category="Informatique & Matériel">
             <div class="img"><img src="nvme.jpg" alt="NVMe" /></div>
@@ -348,6 +384,18 @@
               <div class="row"><label>Utilité</label><input type="range" min="0" max="5" step="1" value="5"/><span class="val">5</span></div>
               <div class="row"><label>Plaisir</label><input type="range" min="0" max="5" step="1" value="2"/><span class="val">2</span></div>
               <div class="scoreLine"><span class="score">Score : <b class="scoreVal">0.0</b> / 5</span><div class="actions"><a class="btn primary" href="https://www.materiel.net/produit/202310090022.html" target="_blank" rel="noopener noreferrer">Voir</a></div></div>
+            </div>
+          </article>
+          
+          <article class="card" data-category="Informatique & Matériel">
+            <div class="img"><img src="ecran.jpg" alt="Ecran Oled" /></div>
+            <div class="meta"><span class="badge">Informatique & Matériel</span><span class="price">799.99€</span></div>
+            <h3 class="title">ASUS ROG Strix XG27UCDMG Oled</h3>
+            <p class="notes">Ecran Ordinateur Oled</p>
+            <div class="ratings readonly">
+              <div class="row"><label>Utilité</label><input type="range" min="0" max="5" step="1" value="5"/><span class="val">5</span></div>
+              <div class="row"><label>Plaisir</label><input type="range" min="0" max="5" step="1" value="4"/><span class="val">4</span></div>
+              <div class="scoreLine"><span class="score">Score : <b class="scoreVal">0.0</b> / 5</span><div class="actions"><a class="btn primary" href="https://www.amazon.fr/ASUS-ROG-Strix-XG27UCDMG-QD-OLED/dp/B0F13V37YH?__mk_fr_FR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=ICW30400ZWSX&dib=eyJ2IjoiMSJ9.Fs3LQ8PQO3LSpt1--gCKwKSiboIFNLv3BOPNw7G0WbAriL1YIfwa3HphBvi4MSn6oO7BjgqjYO0YceQYVFKLwIUrIjfZW2totiKiowJz2FozKxwqT0JDZTeFvlVqV5c5SMSugW8miQ7xsT1La_ysANheZ64UT38vao2Q3krEiZplcbD8pqbIh9t8TGKRjMS861TBLWB4FDkzYDxiR1UVuPweOZpqWqbPWF8NSP7DFh6zHs9Y0ej1W4szf-wppruw2hl6dEv5lN7I4M4pwOhsbC5S-Rl_6iWOcLcMwTHPWHw.NfSt6KRkroDfL7BKpXneM2e6AxPZZtNq1xez_WI6MJI&dib_tag=se&keywords=ROG+4K+27&qid=1751196048&sprefix=rog+4k+27,aps,92&sr=8-5&linkCode=sl1&tag=noixdecitron-21&linkId=05fb8a54a97070f2ab3519b5a9edd347&language=fr_FR&ref_=as_li_ss_tl" target="_blank" rel="noopener noreferrer">Voir</a></div></div>
             </div>
           </article>
 
@@ -376,14 +424,14 @@
           </article>
 
           <article class="card" data-category="Informatique & Matériel">
-            <div class="img"><img src="WAVLIN Station de travail.jpg" alt="Station de Travail" /></div>
-            <div class="meta"><span class="badge">Informatique & Matériel</span><span class="price">199€</span></div>
-            <h3 class="title">Station de travail</h3>
+            <div class="img"><img src="Comutateur.jpg" alt="Station de Travail" /></div>
+            <div class="meta"><span class="badge">Informatique & Matériel</span><span class="price">75€</span></div>
+            <h3 class="title">Commutateur KVM</h3>
             <p class="notes">Pour Ordinateur</p>
             <div class="ratings readonly">
               <div class="row"><label>Utilité</label><input type="range" min="0" max="5" step="1" value="4"/><span class="val">4</span></div>
-              <div class="row"><label>Plaisir</label><input type="range" min="0" max="5" step="1" value="2"/><span class="val">2</span></div>
-              <div class="scoreLine"><span class="score">Score : <b class="scoreVal">0.0</b> / 5</span><div class="actions"><a class="btn primary" href="https://www.amazon.fr/WAVLINK-Universal-Station-daccueil-UG69PD2/dp/B07J9VWQPY?th=1" target="_blank" rel="noopener noreferrer">Voir</a></div></div>
+              <div class="row"><label>Plaisir</label><input type="range" min="0" max="5" step="1" value="3"/><span class="val">3</span></div>
+              <div class="scoreLine"><span class="score">Score : <b class="scoreVal">0.0</b> / 5</span><div class="actions"><a class="btn primary" href="https://www.amazon.fr/SUIDEK-Commutateur-Displayport-ordinateurs-supportant/dp/B0DBQFYVBV?source=ps-sl-shoppingads-lpcontext&ref_=fplfs&smid=A1SGCPNEYN56UD&utm=undefined&th=1" target="_blank" rel="noopener noreferrer">Voir</a></div></div>
             </div>
           </article>
 
@@ -397,6 +445,18 @@
               <div class="row"><label>Utilité</label><input type="range" min="0" max="5" step="1" value="4"/><span class="val">4</span></div>
               <div class="row"><label>Plaisir</label><input type="range" min="0" max="5" step="1" value="3"/><span class="val">3</span></div>
               <div class="scoreLine"><span class="score">Score : <b class="scoreVal">0.0</b> / 5</span><div class="actions"><a class="btn primary" href="https://www.amazon.fr/CAHAYA-r%C3%A9glable-rembourr%C3%A9-%C3%A9lectronique-num%C3%A9rique/dp/B0C9D1HC82/ref=sr_1_11?__mk_fr_FR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=2W7QUJ9EUQ4HA&dib=eyJ2IjoiMSJ9.wnEiMWDpKz4Bcbo_C0YmLSNUXbMFmLJeRUdwuqC67PJAMrtqpTe9tAW7WjUKC2s-J7q4CL4crWC0JotorJnFakVFsXQc1BaKFHwqS9KhyVCGbaPHIPLbZNX3drdYICECkjdCpRxM4OaK7sKBLonM9MAVItRCO-qo8HLZzvN6bh3QDP1Wm_s4b7m97WQrPSQpyeo8CKrv02FUeJ6fnn8eO0aSsNYYe1DIqlErdPb2lFIoBGr0mcmNzP-CxZu_8g_cVSbKQ0QuRmHTKRcVr9e9vRghyFloPw7nstNYG3nYGSE.nWv6iNWgY4D5CORADiwYj9g8wAe6dhgnPWNwOjMB2go&dib_tag=se&keywords=chaise+guitare&qid=1755981509&sprefix=chaise+guitare%2Caps%2C72&sr=8-11" target="_blank" rel="noopener noreferrer">Voir</a></div></div>
+            </div>
+          </article>
+          
+          <article class="card" data-category="Quotidien & Maison">
+            <div class="img"><img src="panneau.jpg" alt="CAHAYA Banc de Piano réglable" /></div>
+            <div class="meta"><span class="badge">Quotidien & Maison</span><span class="price">34.99€</span></div>
+            <h3 class="title">Panneaux mureaux 3D</h3>
+            <p class="notes">Dalles Murales Décoratives</p>
+            <div class="ratings readonly">
+              <div class="row"><label>Utilité</label><input type="range" min="0" max="5" step="1" value="5"/><span class="val">5</span></div>
+              <div class="row"><label>Plaisir</label><input type="range" min="0" max="5" step="1" value="3"/><span class="val">3</span></div>
+              <div class="scoreLine"><span class="score">Score : <b class="scoreVal">0.0</b> / 5</span><div class="actions"><a class="btn primary" href="https://www.amazon.fr/LeapBeast-Panneaux-D%C3%A9coratives-d%C3%A9coration-int%C3%A9rieure/dp/B0DZH8N5RY?__mk_fr_FR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=N54PMJ9PTFRH&dib=eyJ2IjoiMSJ9.dhKFlYiQMXcmjStDDU7WyCmaqDcgizPxK3GR4glQPp4b2BltaCZWo4FyG3As_zfDwyQgOEWPI42zn3jIfhGEKPvJ6KW6EytGSYPP58u2Ksx9WFZ1VPWZwvzeLV7x2xr-zRtMKcpLQMUVImPj02v0VAybxD_MQcTlF6XcPI85i0TS9fK1AFFPLaM1VpDl5mgIB5ZMvtxVBv8NmOByQ6RhUOSQEr4cRwblRzzLMJnDNzQ.1y2IOYayeskJxZFMmhnXwQEzZGGU04BWh52VxPkSyno&dib_tag=se&keywords=panneau%2B3D%2Bblanc&qid=1751037541&s=hi&sprefix=panneau%2B3d%2Bblanc%2Cdiy%2C79&sr=1-6&th=1&linkCode=sl1&tag=noixdecitron-21&linkId=c189763da6dd6c3b681f0ddc62e06d6d&language=fr_FR&ref_=as_li_ss_tl" target="_blank" rel="noopener noreferrer">Voir</a></div></div>
             </div>
           </article>
 
